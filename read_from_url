@@ -5,3 +5,5 @@ def read_from_url(url,header={})
   request.initialize_http_header(header)
   http.request(request).body
 end
+
+JSON.parse(read_from_url(url))
