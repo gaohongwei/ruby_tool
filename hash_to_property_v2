@@ -1,0 +1,7 @@
+	def Key2Property(h)
+		return if h.nil?
+		@h=h	
+		@h.each do |k,v|
+			self.class.send(:define_method,k) {instance_variable_get("@h")[k]}
+		end			
+	end	
