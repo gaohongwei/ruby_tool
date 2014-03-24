@@ -5,3 +5,7 @@ s.sub(/link_to (.*),(.*)/,'link_to t(\1),\2')
 
 ps={pold:"link_to (.*),(.*)",pnew:"link_to t(\\1),\\2"}
 s.sub(/#{ps[:pold]}/, "#{ps[:pnew]}")
+var='abc'
+if s =~/^#{var}/ 
+  
+end
