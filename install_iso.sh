@@ -21,5 +21,6 @@ sudo -u postgres createdb $dbname
 
  psql TCM_production
 SELECT version();
+\
 \dt
 \q
