@@ -24,10 +24,12 @@ module ApplicationHelper
     #Kaminari.paginate_array(objs).page(params[:page]).per(10)
   end  
   def page_header(obj=nil,header=nil,size=3) 
-    if obj.nil? 
-      header=get_page_header()
-    else
-      header=get_page_header(obj,:dft)
+    if header.nil?
+      if obj.nil? 
+        header||=get_page_header()
+      else
+        header||=get_page_header(obj,:dft)
+      end
     end
     display(header,3,false)
   end 
@@ -36,8 +38,11 @@ module ApplicationHelper
     action=get_action()
     id=get_id()    
     #if action == 'new' && !id.nil?
-    header="#{action} : #{resource}"
-    
+    if action == 'index'
+      header="#{resource} #{action}"
+    else
+      header="#{action} #{resource}"
+    end    
     header=tts(header)
 
     #dft_columns=get_columns(:dft)
@@ -267,13 +272,9 @@ module ApplicationHelper
       obj_name='HasData'
     end
   end
-  def get_para_name_with_id()
-    ids=params.keys.select{|x|x=~/_id$/}
-    if ids.size > 0     
-      return ids.first      
-    else
-      return nil
-    end
+  def get_params_with_id()
+    params_with_ids=params.keys.select{|x|x=~/_id$/}
+    params_with_ids
   end
 
 

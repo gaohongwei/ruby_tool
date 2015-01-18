@@ -8,6 +8,9 @@ module ApplicationHelper
       redirect_to [ns,obj], notice  
     end    
   end
+  def link_to_url(label,url)
+    link_to label, url,class: 'btn btn-primary'
+  end
   def link_to_ns(value,obj)
     # This will only be used in index
     # other links will be created from link_to_controller_action

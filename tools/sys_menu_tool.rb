@@ -1,11 +1,18 @@
 module ApplicationHelper 
+  LOGINS=[
+    #provider:'QqConnect',url:'/auth/qq_connect'}
+    {provider:'QQ',url:'/auth/qq'},       
+    {provider:'Google',url:'/auth/google'},
+    {provider:'Linkedin',url:'/auth/linkedin'},
+    {provider:'Facebook',url:'/auth/facebook'},  
+    {provider:'Twitter',url:'/auth/twitter'},           
+  ]  
   def menu_bar
       render 'shared/menu_db'       
       #render 'shared/menu_hash' 
   end  
   def search_area(caption_columns=nil)
-    if user_signed_in?
-      caption_columns||=@caption_columns
+    if user_signed_in? && caption_columns
       render(partial: '/shared/search', 
         locals: {placeholder: tt('placeholder'),
           caption_columns:caption_columns})

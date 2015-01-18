@@ -1,6 +1,19 @@
 module ApplicationHelper
 	ACTS=['show','edit','index','new','copy'] 	
 	#Use instance variable to avoid repeative database access
+	def get_array(str,index)
+		# "email;vname|wname;groups.first.name|name;active"
+		# Each column pair seperated by ;
+		# Column and caption seperated by |
+		# Column first, caption can be missed
+		out=[]
+		ar=str.split(';')
+		ar.each do |ele|
+			parts=ele.split('|')
+			out << (parts[index]||parts[0])
+		end
+		out
+	end
 	def get_columns()	
 		cfg=get_columns_captions('cols')
 		params[:cols]=cfg.join(',')

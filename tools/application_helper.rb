@@ -75,14 +75,14 @@ module ApplicationHelper
   end  
   def index_me(objs,sort_column,sort_direction, columns=nil, captions=nil, header=nil)
     myview=get_my_template('selfed')
-    params[:myview]=myview   
+    params[:myview]=myview     
     unless myview.nil? 
       render :template =>myview
-    else    
-      columns ||=get_columns()
-      captions||=get_captions()
-      actions ||=get_actions() 
-      header  ||=get_page_header()         
+    else  
+      columns ||=(@columns ||get_columns())
+      captions||=(@captions||get_captions())
+      actions ||=(@actions ||get_actions()) 
+      header  ||=(@header  ||get_page_header())                
       render 'shared/index', :objs=>objs, 
       :sort_column=>sort_column, :sort_direction=>sort_direction,
       :columns=>columns, :header=>header,:captions=>captions,:actions=>actions     
@@ -94,10 +94,10 @@ module ApplicationHelper
     unless myview.nil? 
       render :template =>myview
     else
-      columns ||=get_columns()
-      captions||=get_captions()
-      actions ||=get_actions() 
-      header  ||=get_page_header(obj,:dft)  
+      columns ||=(@columns ||get_columns())
+      captions||=(@captions||get_captions())
+      actions ||=(@actions ||get_actions())       
+      header  ||=(@header  ||get_page_header(obj,:dft))  
       render 'shared/show', :obj=>obj,:columns=>columns,
       :captions=>captions,:header=>header,:actions=>actions
     end
@@ -108,10 +108,10 @@ module ApplicationHelper
     unless myview.nil? 
       render :template =>myview
     else      
-      columns ||=get_columns()
-      captions||=get_captions()
-      actions ||=get_actions() 
-      header  ||=get_page_header(obj,:dft)          
+      columns ||=(@columns ||get_columns())
+      captions||=(@captions||get_captions())
+      actions ||=(@actions ||get_actions())  
+      header  ||=(@header  ||get_page_header(obj,:dft))         
       render 'shared/form', :obj=>obj,:columns=>columns,
       :captions=>captions,:header=>header,:actions=>actions
     end
@@ -165,8 +165,12 @@ module ApplicationHelper
     kk=key.downcase.singularize
     t(kk, :default => key)
   end   
-  def tts(str,split_char=' ',keep_split_char=false)
-    ar=str.split(split_char)
+  def tts(str,keep_split_char=false,split_char=nil)
+    if split_char 
+      ar=str.split(split_char)
+    else
+      ar=str.split(/([\s,.;:&'?])/)      
+    end
     ar=ar.map{|x|tt(x)}
     if keep_split_char
       return ar.join(split_char)
