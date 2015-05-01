@@ -12,11 +12,21 @@ require 'file_tool'
 require 'data_tool'
 module ApplicationHelper 
 ############## Public methods only ############## 
-  def get_web_title()
-    YAML.load(Setting[:browser_title])||tt('no_name')
+  def zz_tt_obj(obj,attr='title')
+    if obj.i18n
+      tt(obj.send(attr))
+    else
+      obj.send(attr)
+    end
   end
   def get_body_header()
-    YAML.load(Setting[:body_header])||tt('no_name')
+    var=['header',cookies[:locale]].join(':')
+    get_setting(var)||tt('header')
+  end
+  def get_setting(var_name)
+    value=Setting[var_name]
+    return YAML.load(value) if value
+    return nil
   end
   def show_article(article_id) 
     article = Article.find(article_id)
@@ -78,14 +88,10 @@ module ApplicationHelper
     params[:myview]=myview     
     unless myview.nil? 
       render :template =>myview
-    else  
-      columns ||=(@columns ||get_columns())
-      captions||=(@captions||get_captions())
-      actions ||=(@actions ||get_actions()) 
-      header  ||=(@header  ||get_page_header())                
-      render 'shared/index', :objs=>objs, 
+    else                 
+      render 'shared/index', :objs=>@objs, 
       :sort_column=>sort_column, :sort_direction=>sort_direction,
-      :columns=>columns, :header=>header,:captions=>captions,:actions=>actions     
+      :columns=>@columns, :header=>@header,:captions=>@captions,:actions=>@actions     
     end
   end
   def show_me(obj,columns=nil,captions=nil, header=nil)
@@ -93,13 +99,9 @@ module ApplicationHelper
     params[:myview]=myview   
     unless myview.nil? 
       render :template =>myview
-    else
-      columns ||=(@columns ||get_columns())
-      captions||=(@captions||get_captions())
-      actions ||=(@actions ||get_actions())       
-      header  ||=(@header  ||get_page_header(obj,:dft))  
-      render 'shared/show', :obj=>obj,:columns=>columns,
-      :captions=>captions,:header=>header,:actions=>actions
+    else  
+      render 'shared/show', :obj=>@obj,:columns=>@columns,
+      :captions=>@captions,:header=>@header,:actions=>@actions
     end
   end  
   def form_me(obj,columns=nil,captions=nil, header=nil)   
@@ -107,34 +109,59 @@ module ApplicationHelper
     params[:myview]=myview   
     unless myview.nil? 
       render :template =>myview
-    else      
-      columns ||=(@columns ||get_columns())
-      captions||=(@captions||get_captions())
-      actions ||=(@actions ||get_actions())  
-      header  ||=(@header  ||get_page_header(obj,:dft))         
-      render 'shared/form', :obj=>obj,:columns=>columns,
-      :captions=>captions,:header=>header,:actions=>actions
+    else              
+      render 'shared/form', :obj=>@obj,:columns=>@columns,
+      :captions=>@captions,:header=>@header,:actions=>@actions
     end
   end    
   def link2actions(actions=nil,id=nil,controller=nil,data={})
-    actions ||=get_actions()
-    controller ||=get_controller()
-    id ||=get_id()   
-    render 'shared/actions', :actions=>actions,:id=>id,:controller=>controller
+    if user_signed_in?
+      actions ||=@actions
+      controller ||=get_controller()
+      id ||=get_id()   
+      render 'shared/actions', :actions=>actions,:id=>id,:controller=>controller,data:data
+    end
   end  
-  def link2action(act,id=nil,controller=nil,data={})
-    isbig=true      
-    #name:'group',action_scope:'index:::admin/users'
+  def link2action(act,id=nil,controller=nil,data=nil)
+    isbig=true  
+    id||=get_id()         
+    if act == 'delete'  
+      controller ||=get_controller()
+      if id 
+        return link2delete(controller,id,isbig)
+      else 
+        return ''
+      end
+    end  
+    #name:'group',action_scope:'index::::admin/users'
     # /groups/1/users
-    act,scope,label,nested_res=act.split(':')
+    data||={}
+    act,scope,label,carry,nested_res=act.split(':')
+=begin      
     unless scope.nil? || scope.empty?
       data.merge!({:scope=>scope})
     end
-    if label.nil?||label.empty?
-      label =tts("#{act} #{scope}") 
+=end  
+    case scope
+    when nil,''
+    when 'false','FALSE'
+    # Skip false action
+    #  new:false,edit:false etc      
+      return ''
     else
-      label = tts(label) 
+      data.merge!({:scope=>scope})
+    end
+
+    if carry && params[:scope]
+      data.merge!({:scope=>params[:scope]})
+    end
+
+    params["#{act}_data"]=data
+    if label.nil?||label.empty?
+      label ="#{act}_#{scope}"
+      label.chomp!('_') 
     end 
+    label = tt(label)     
     begin 
       if nested_res.nil?||nested_res.empty?
         link_to_controller_action(controller,act,label,id,isbig,data)  
@@ -157,8 +184,16 @@ module ApplicationHelper
     end
 
   end    
-  def tt(key)
-    key.blank?? '': t(key, :default => key)
+  def tt(key,transform=true)
+    return ''  if key.nil?
+    return key unless key.is_a?(String)
+    return key if key =~ /^[0-9.]+$/
+    return ''  if key.empty?     
+    if transform   
+      I18n.t(key, :default => key.sub('_',' ').titleize)
+    else
+      I18n.t(key, :default => key)      
+    end
   end 
   def lstt(key)
     return '' if key.empty?

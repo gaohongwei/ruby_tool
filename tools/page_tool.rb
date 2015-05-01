@@ -46,7 +46,7 @@ module ApplicationHelper
     header=tts(header)
 
     #dft_columns=get_columns(:dft)
-    dft_columns ||=get_columns()   
+    dft_columns,caps=get_columns_captions()  
     column=dft_columns[0]
     # copy: new?id=1
     unless obj.nil? || column.nil? 
@@ -115,46 +115,50 @@ module ApplicationHelper
       return data
     end
   end
-
-  def f_input(f,column,label=nil,adv=nil)
+  def f_input_opt(type,label,data,input_html=nil)
+    case type
+    when 'c','checkbox','cb'
+      opt={as:'check_boxes',input_html:{class:'well'}}
+    when 'co' # not working
+      opt={:as => :check_boxes,:multiple => false}           
+    when 'r','radio','rd'
+      opt={:as => :radio}        
+    when 'l','list','ls' #not working
+      opt={:as => :select}               
+    when 'h','hidden','hd'
+      opt={:as => :hidden} 
+    when 'text'
+      opt={:as => :text}
+    when 'rtf'
+      opt={:as => :cktext_area}        
+    else
+      opt={}
+    end 
+    opt[:label]= tt(label) if label
+    opt[:collection]=data if data  
+    opt[:input_html]=html if input_html      
+    return opt
+  end
+  def f_checkbox_del(f,column,label=nil)
+    f_input(f,column,label,{:as => :check_boxes})
+  end
+  def f_column(f,column,data=nil,html=nil)
+    column,type,label=column.split(':')
+    label||= column
+    opt=f_input_opt(type,label,data,html)    
+    f.input(column,opt) 
+  end
+  def f_input(f,column,label=nil,data=nil,html=nil)
     column_org=column
     column,type,extra=column.split(':')
     if column.nil? || column.empty?
       return f.label label
     end 
     extra=nil if extra.nil?||extra.empty?
-    
-    label ||=column
-    label =tt(label) 
-    params[:type]=type
-    opt={:label=>label}
-    opt.merge!(adv) unless adv.nil? 
-    adv=nil   
-    unless type.nil?
-      case type
-      when 'c','checkbox','cb'
-        adv={:as => :check_boxes}
-        #adv[:collection]=['abc','123']
-        adv[:collection]=parse_column_cfg(extra) if extra
-      when 'co' # not working
-        adv={:as => :check_boxes,:multiple => false}  
-        adv[:collection]=parse_column_cfg(extra) if extra          
-      when 'r','radio','rd'
-        adv={:as => :radio} 
-        adv[:collection]=parse_column_cfg(extra) if extra        
-      when 'l','list','ls' #not working
-        adv={:as => :select}  
-        adv[:collection]=parse_column_cfg(extra) if extra               
-      when 'h','hidden','hd'
-        adv={:as => :hidden} 
-      when 'text'
-        adv={:as => :text}
-      when 'rtf'
-        adv={:as => :cktext_area}        
-      else
-      end
-    end #unless
-    opt.merge!(adv) unless adv.nil?
+    #adv[:collection]=parse_column_cfg(extra) if extra        
+    label||=column
+    opt=f_input_opt(type,label,data,html)         
+    #opt.merge!(adv) unless adv.nil?
     if f.object.respond_to?(column)
       begin
         f.input column.to_sym,opt
@@ -168,9 +172,7 @@ module ApplicationHelper
       nil
     end
   end
-  def f_checkbox(f,column,label=nil)
-    f_input(f,column,label,{:as => :check_boxes})
-  end
+
   def ptd(s)
     "<td>#{s}</td>"
   end

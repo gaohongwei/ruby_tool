@@ -1,12 +1,29 @@
 module ApplicationHelper 
   LOGINS=[
-    #provider:'QqConnect',url:'/auth/qq_connect'}
-    {provider:'QQ',url:'/auth/qq'},       
-    {provider:'Google',url:'/auth/google'},
-    {provider:'Linkedin',url:'/auth/linkedin'},
-    {provider:'Facebook',url:'/auth/facebook'},  
-    {provider:'Twitter',url:'/auth/twitter'},           
-  ]  
+    #id:'QqConnect',url:'/auth/qq_connect'}
+    {id:'QQ',url:'/auth/qq'},       
+    {id:'Google',url:'/auth/google'},
+    {id:'Linkedin',url:'/auth/linkedin'},
+    {id:'Facebook',url:'/auth/facebook'},  
+    #{id:'Twitter',url:'/auth/twitter'},           
+  ]      
+  SHARES_CN=[
+    #id:'',label:'QqConnect',url:'/auth/qq_connect'}
+    {id:'sweibo',label:'新浪微博',url:'http://service.weibo.com/share/share.php?url=%s&title=%s'},       
+    {id:'tweibo',label:'腾讯微博',url:'http://v.t.qq.com/share/share.php?url=%s&title=%s'},  
+    {id:'qzone',label:'QQ空间',url:'http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=%s&title=%s'},      
+    {id:'renren',label:'人人网',url:'http://share.renren.com/share/buttonshare?link=%s&title=%s'}, 
+    #{id:'penyou',label:'朋友网',url:''}, 
+    {id:'douban',label:'豆瓣',url:'http://www.douban.com/recommend/?url=%s&title=%s'},        
+    {id:'netease',label:'网易微博',url:'http://t.163.com/article/user/checkLogin.do?link=%s&info=%s'},          
+    #{id:'',label:'Twitter',url:'/auth/twitter'},           
+  ]
+  SHARES_US=[
+    {id:'facebook',label:'Facebook',url:'https://www.facebook.com/sharer/sharer.php?u=%s'},       
+    {id:'google',label:'Google',url:'https://plus.google.com/share?url=%s'},   
+    {id:'linkedin',label:'Linkedin',url:'http://www.linkedin.com/shareArticle?mini=true&url=%s&title=%s&summary=%s'},       
+    {id:'twitter',label:'Twitter',url:'http://twitter.com/home?status=%2$s %3$s %1$s'},   
+  ]     
   def menu_bar
       render 'shared/menu_db'       
       #render 'shared/menu_hash' 

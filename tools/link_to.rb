@@ -1,16 +1,50 @@
 module ApplicationHelper
 ############## Public  ############## 
+  def fname_png(provider,dir='login',size=24)
+    return "#{dir}/#{provider}#{size}.png"
+  end
+  def share_png_tag(provider,label)
+    dir,size='share',16
+    return get_image_tag(provider,label,dir,size)
+  end
+  def login_png_tag(provider,label)
+    dir,size='login',24
+    return get_image_tag(provider,label,dir,size)
+  end  
+
+  def get_image_tag(provider,label,dir='login',size=24)
+    provider.downcase! 
+    fname=fname_png(provider,dir,size)
+    image_tag(fname, title:label)
+  end  
   def redirect_to_ns(obj,notice=nil)
     ns=get_namespace()
     if ns.nil?
-      redirect_to obj, notice
+      redirect_to obj
     else
-      redirect_to [ns,obj], notice  
+      redirect_to [ns,obj]  
     end    
   end
-  def link_to_url(label,url)
+  def button_to(label,url,opt={})
+    opt.merge!(class: 'btn btn-primary')
+    link_to tt(label), url,opt
+  end 
+  def link_to_image(fname,url,label,alt) 
+    link_to(image_tag(fname, {:alt=>alt, :title=>label}) ,url)
+  end
+  def link_to_url(label,url,i18n=true)
+    label=tt(label) if i18n
     link_to label, url,class: 'btn btn-primary'
   end
+  def link_to_label_url(label_url)
+    return nil if label_url.nil?||label_url.empty?
+    label,url=label_url.split(';')
+    if url.nil?||url.empty?
+      tt(label)
+    else
+      link_to_url(label,url)
+    end
+  end  
   def link_to_ns(value,obj)
     # This will only be used in index
     # other links will be created from link_to_controller_action
@@ -65,10 +99,12 @@ module ApplicationHelper
   end
 
   def link2show(controller,id,isbig=true,label=nil)
+    return '' if id.nil?
     action='show'      
   	link_to_controller_action(controller,action,label,id,isbig)
   end
   def link2edit(controller,id,isbig=true,label=nil)
+    return '' if id.nil?    
     action='edit'      
   	link_to_controller_action(controller,action,label,id,isbig)
   end
@@ -95,6 +131,7 @@ module ApplicationHelper
   end
 
   def link2delete(controller,id,isbig=true,label=nil)
+    return '' if id.nil?    
     label ||=tt('delete')
   	link_to label, 
        { :controller => controller, :action => 'destroy', :id => id }, # your URL details
