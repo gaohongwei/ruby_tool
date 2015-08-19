@@ -30,3 +30,32 @@ file_names.each do |file_name|
   end
 end
 ##################
+module KeywordValidator
+  validate :validate_keywords  
+  PATTERN = '\A[a-zA-Z0-9\-\_\n]+\z'
+  MESSAGE = 'Only letters, numbers, dash (-), underscore (_) allowed.'
+  REGX = Regexp.new(PATTERN)
+  def keyword_list=(list)
+    self.keywords = split_string(list)
+  end
+
+  def keyword_list
+    keywords.join("\n") if keywords
+  end
+
+  def validate_keywords
+    return if keywords.empty?
+    return unless keywords.any? { |x| x !~ REGX }
+    errors.add(:keyword_list, MESSAGE)
+  end
+
+  def split_string(list)
+    list.split(
+      /\s*[,;]\s* # comma or semicolon, optionally surrounded by whitespace
+      |         # or
+      \s{2,}    # two or more whitespace characters
+      |         # or
+      [\r\n]+   # any number of newline characters
+      /x).map(&:strip)
+  end
+end
