@@ -1,4 +1,4 @@
-Regular expression with variable name
+##### Regular expression with variable name #####
 word='food'
 phrase =~ /#{word}$/
 
