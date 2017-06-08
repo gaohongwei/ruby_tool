@@ -1,3 +1,7 @@
+Regular expression with variable name
+word='food'
+phrase =~ /#{word}$/
+
 s="link_to 'New Part', new_part_path"
 s.sub(/link_to (.*),(.*)/,'\1\2')
 s.sub(/link_to (.*),(.*)/,'t(\1),\2')
